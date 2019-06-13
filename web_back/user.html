@@ -64,12 +64,10 @@
             </form>
         </div>
     </div>
-    <!-- 
-        一进入个人中心就获取到主页的个人信息,所以一进入就获取ajax请求,将主页的个人信息显示在个人中心的基本信息里
-
-     -->
      <script>
          $(function(){
+            //  更改个人中心的用户信息
+            // 一进入个人中心就获取到主页的个人信息,所以一进入就获取ajax请求,将主页的个人信息显示在个人中心的基本信息里
              $.ajax({
                  type: 'get',
                  url: 'http://localhost:8000/admin/userinfo_get',
@@ -89,6 +87,13 @@
                     }
                  }
              })
+
+            //  图片预览
+            $('#exampleInputFile').on('change',function(){
+                var icon = this.files[0];
+                var url = URL.createObjectURL(icon);
+                $('.user_pic').attr('src',url);
+            })
          })
      </script>
 </body>
