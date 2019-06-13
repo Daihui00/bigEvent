@@ -24,19 +24,19 @@
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">用户名称：</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control" id="inputEmail3" value="李思思">
+                        <input type="text" class="form-control username" id="inputEmail3" value="李思思">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">昵称：</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control" id="inputEmail3" value="思思">
+                        <input type="text" class="form-control nickname" id="inputEmail3" value="思思">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">邮箱：</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control" id="inputEmail3" value="lisisi@126.com">
+                        <input type="text" class="form-control email" id="inputEmail3" value="lisisi@126.com">
                     </div>
                 </div>
                 
@@ -51,7 +51,7 @@
                 <div class="form-group">
                         <label for="inputEmail3" class="col-sm-2 control-label">密码：</label>
                         <div class="col-sm-4">
-                            <input type="password" class="form-control" id="inputEmail3" value="12345678">
+                            <input type="password" class="form-control password" id="inputEmail3" value="12345678">
                         </div>
                     </div>
                
@@ -64,7 +64,33 @@
             </form>
         </div>
     </div>
+    <!-- 
+        一进入个人中心就获取到主页的个人信息,所以一进入就获取ajax请求,将主页的个人信息显示在个人中心的基本信息里
 
+     -->
+     <script>
+         $(function(){
+             $.ajax({
+                 type: 'get',
+                 url: 'http://localhost:8000/admin/userinfo_get',
+                 success: function(backData){
+                     //新手写法,low
+                    //  $('input.username').val(backData.data.username);
+                    //  $('input.nickname').val(backData.data.nickname);
+                    //  $('input.email').val(backData.data.email);
+                    //  $('input.password').val(backData.data.password);
+                    //  $('img.user_pic').attr('src',backData.data.user_pic);
+                    //10年经验写法 
+                    // 遍历返回的data里面的每个属性
+                    for(var key in backData.data){
+                        //把值和键进行拼接
+                        $('input.'+key).val(backData.data[key]);
+                        $('img.user_pic').attr('src',backData.data.user_pic);
+                    }
+                 }
+             })
+         })
+     </script>
 </body>
 
 </html>
