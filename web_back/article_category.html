@@ -119,11 +119,6 @@
             $('#addModal').modal('hide');
         });
 
-        $('#model_add').click(function () {
-            alert('add');
-            $('#addModal').modal('hide');
-        });
-
         $('.category_table').delegate('a', 'click', function () {
             if ($(this).hasClass('btn-info')) {
                 $('#addModal .modal-title').html('修改分类名称');
@@ -131,8 +126,6 @@
             }
         })      
     </script>
-    <!-- http://localhost:8000/admin/category_add -->
-    <!-- http://localhost:8000/admin/category_search -->
     <script id="tmp_rate" type="text/html">
             {{each data}}
             <tr>
@@ -141,24 +134,31 @@
                 <td class="text-center">
                     <a href="javascript:editTr({&quot;id&quot;:&quot;1&quot;,&quot;slug&quot;:&quot;uncategorized&quot;,&quot;name&quot;:&quot;未分类&quot;});"
                         class="btn btn-info btn-xs">编辑</a>
-                    <a href="javascript:deleteTr( {{$value.id}} );" class="btn btn-danger btn-xs">删除</a>
+                        <!-- 定义一个自定义标签来保存返回的id值,存的是一个数据 -->
+                    <a href="javascript:void(0);" data-id = '{{$value.id}}' class="btn btn-danger btn-xs btn-delete">删除</a>
                 </td>
             </tr>
             {{/each}}
         </script>
     <script>
-        // 获取文章类型
-        // 页面一进来就发送请求
+        
         $(function () {
-            $.ajax({
-                type: 'get',
-                url: 'http://localhost:8000/admin/category_search',
-                success: function (backData) {
-                    // 因为添加的格式是一样的所以用模板引擎
-                    var reshtml = template('tmp_rate', backData);
-                    $('tbody').html(reshtml);
-                }
-            })
+            // 将获取文章类型封装成函数,多次调用
+            function getCategory() {
+                $.ajax({
+                    type: 'get',
+                    url: 'http://localhost:8000/admin/category_search',
+                    success: function (backData) {
+                        // 因为添加的格式是一样的所以用模板引擎
+                        var reshtml = template('tmp_rate', backData);
+                        $('tbody').html(reshtml);
+                    }
+                });
+            }
+
+            // 获取文章类型
+            // 页面一进来就发送请求
+            getCategory();
 
             //新增文章类别 
             // 利用他自己的事件
@@ -177,21 +177,45 @@
                         slug: slug,
                     },
                     success: function (backData) {
+                        console.log(backData);
                         // 新增后立马重新获取文章类型
-                        $.ajax({
-                            type: 'get',
-                            url: 'http://localhost:8000/admin/category_search',
-                            success: function (backData) {
-                                // 因为添加的格式是一样的所以用模板引擎
-                                var reshtml = template('tmp_rate', backData);
-                                $('tbody').html(reshtml);
-                            }
-                        })
+                        getCategory();
                     }
                 })
             });
-        })
 
+
+            // 文章类别删除
+            // 步骤
+            // id是通过一个自定义属性存在了a标签中,为什么要用id来找到对应的元素,因为数据接口参数是id
+            // 给删除按钮设置点击事件,因为这个a标签所在的tr是通过模板引擎动态生成,后面生成的tr没有事件,所以使用事件委托方式来注册
+            // 发送ajax请求,删除对应的这一id数据
+            $('tbody').on('click', 'a.btn-delete', function () {
+                //在外面定义一个变量,把当前这个点击的a标签存起来,让后面的内部访问
+                var that = $(this);
+                // 首先获取这个a标签的自定义属性data-id里面存放的值(就是你要删除的这一条数据的id);
+                var id = $(this).attr('data-id');
+                // console.log(id);
+                $.ajax({
+                    type: 'post',
+                    url: 'http://localhost:8000/admin/category_delete',
+                    data: {
+                        id: id
+                    },
+                    success: function (backData) {
+                        // console.log(backData);
+                        // 删除成功后重新获取数据
+                        // getCategory();
+                        // 现在删除成功要重新渲染,如果数据很多,重新渲染就会很慢
+                        // 既然删除成功,那数据就肯定是删除了的,那就把这行数据直接从dom树中移除
+                        if(backData.code == 200){
+                            that.parent().parent().remove();
+                        }
+                    }
+                })
+
+            })
+        })
 
     </script>
 </body>
