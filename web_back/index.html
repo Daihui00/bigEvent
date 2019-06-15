@@ -138,7 +138,7 @@
                 e.preventDefault();
                 $.ajax({
                     type: 'post',
-                    url: 'https://autumnfish.cn/big/admin/logout',
+                    url: 'http://localhost:8000/admin/logout',
                     success: function (backData) {
                         if (backData.code == 200) {
                             document.location.href = './login.html';
@@ -148,6 +148,7 @@
                     }
                 })
             })
+            
             // 获取用户信息
             // 登录界面一进来就获取管理员的登录信息,所以写在主页
             // 一进来就发送ajax请求
