@@ -73,7 +73,7 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal">新增分类</a>
+                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal" id="addCategory">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
@@ -119,12 +119,7 @@
             $('#addModal').modal('hide');
         });
 
-        $('.category_table').delegate('a', 'click', function () {
-            if ($(this).hasClass('btn-info')) {
-                $('#addModal .modal-title').html('修改分类名称');
-                $('#addModal').modal('show');
-            }
-        })      
+
     </script>
     <script id="tmp_rate" type="text/html">
             {{each data}}
@@ -132,8 +127,7 @@
                 <td>{{$value.name}}</td>
                 <td>{{$value.slug}}</td>
                 <td class="text-center">
-                    <a href="javascript:editTr({&quot;id&quot;:&quot;1&quot;,&quot;slug&quot;:&quot;uncategorized&quot;,&quot;name&quot;:&quot;未分类&quot;});"
-                        class="btn btn-info btn-xs">编辑</a>
+                    <a href="javascript:editTr({&quot;id&quot;:&quot;1&quot;,&quot;slug&quot;:&quot;uncategorized&quot;,&quot;name&quot;:&quot;未分类&quot;});" class="btn btn-info btn-xs btn-edit">编辑</a>
                         <!-- 定义一个自定义标签来保存返回的id值,存的是一个数据 -->
                     <a href="javascript:void(0);" data-id = '{{$value.id}}' class="btn btn-danger btn-xs btn-delete">删除</a>
                 </td>
@@ -141,7 +135,7 @@
             {{/each}}
         </script>
     <script>
-        
+
         $(function () {
             // 将获取文章类型封装成函数,多次调用
             function getCategory() {
@@ -183,6 +177,23 @@
                     }
                 })
             });
+            
+
+            //点击新增分类按钮,把模态框还原
+            $('#addCategory').on('click',function(){
+                $('#addModal .modal-title').html('新增分类');
+                $('#model_add').text('新增').removeClass('btn-success');
+            })
+
+
+            //文章类别编辑
+            $('tbody').on('click', 'a.btn-edit', function () {
+                // 修改模态框中的按钮名字和模态框自己的标题
+                    $('#addModal .modal-title').html('修改分类');
+                    $('#model_add').text('保存').addClass('btn-success');
+                    $('#addModal').modal('show');
+            })
+
 
 
             // 文章类别删除
@@ -208,13 +219,15 @@
                         // getCategory();
                         // 现在删除成功要重新渲染,如果数据很多,重新渲染就会很慢
                         // 既然删除成功,那数据就肯定是删除了的,那就把这行数据直接从dom树中移除
-                        if(backData.code == 200){
+                        if (backData.code == 200) {
                             that.parent().parent().remove();
                         }
                     }
                 })
 
             })
+
+            
         })
 
     </script>
