@@ -24,14 +24,16 @@
                 <div class="col-xs-6">
                     <form class="form-inline">
                         <select id="selCategory" name="" class="form-control input-sm">
-                            <option>所有分类</option>
+                            <option value="">所有分类</option>
                             <option>未分类</option>
                             <option>奇趣事</option>
                             <option>会生活</option>
                             <option>爱旅行</option>
                         </select>
                         <select id="selStatus" name="" class="form-control input-sm">
+                            <!-- 这里value值为空是获取所有状态 -->
                             <option value="">所有状态</option>
+                            <!-- 这里不写value是获取内容 -->
                             <option>草稿</option>
                             <option>已发布</option>
                         </select>
@@ -298,6 +300,7 @@
         })
         // 获取文章类别
         //页面一进来就获取
+        
             $.ajax({
                 type: 'get',
                 url: 'http://localhost:8000/admin/category_search',
@@ -310,6 +313,7 @@
             
         // 筛选文章
         // 给筛选按钮设置点击事件
+        // 如何获取到value值的:根据返回的数据type和state可以为空,代表获取所有内容;所有设置value='';
         $('#btnSearch').on('click',function(e){
             e.preventDefault();
             //获取文章类别和文章状态
@@ -334,6 +338,12 @@
                 }
             })
         })
+
+
+        // 页面一进来就要获取所有最新数据
+        // 所以页面一进来就要调用一次筛选按钮的方法
+        // 还要给未分类标签设置value值为空,这样才能获取所有未分类的内容
+        $('#btnSearch').trigger('click');
     </script>
 
 </body>
