@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/main.css">
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script src="./js/template-web.js"></script>
 </head>
 
 <body>
@@ -223,4 +225,37 @@
 
 </body>
 
+<!-- 首页文章模板 -->
+<script id="tmp_indexArticle" type="text/html">
+    {{each data v}}
+        <!-- $index 索引 -->
+        {{if $index == 0}}
+        <li class="first">
+        {{else}}
+        <li>
+        {{/if}}
+            <a href="#"><img src="{{v.cover}}" alt=""></a>
+            <p>{{v.title}}</p>
+        </li>
+    {{/each}}
+</script>
+<script>
+    // 发送ajax请求,获取最新的5条新闻
+    $.ajax({
+        url: 'http://localhost:8000/admin/search',
+        data: {
+            type: '',
+            state: '',
+            page: 1,
+            perpage: 5,
+        },
+        success: function(backData){
+            console.log(backData);
+            if(backData.code == 200){
+                var reshtml = template('tmp_indexArticle',backData);
+                $('.focus_list').html(reshtml);
+            }
+        }
+    })
+</script>
 </html>
