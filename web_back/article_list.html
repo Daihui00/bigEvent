@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="css/main.css">
     <script src="js/jquery-1.12.4.min.js"></script>
     <script src="./js/template-web.js"></script>
+    <script src="./js/jquery.twbsPagination.min.js"></script>
 </head>
 
 <body>
@@ -254,7 +255,7 @@
 
             <div class="row text-center">
                 <ul class="pagination pagination-sm">
-                    <li class="page-item first disabled"><a href="#" class="page-link">首页</a></li>
+                    <!-- <li class="page-item first disabled"><a href="#" class="page-link">首页</a></li>
                     <li class="page-item prev disabled"><a href="#" class="page-link">上一页</a></li>
                     <li class="page-item active"><a href="#" class="page-link">1</a></li>
                     <li class="page-item"><a href="#" class="page-link">2</a></li>
@@ -264,7 +265,7 @@
                     <li class="page-item"><a href="#" class="page-link">6</a></li>
                     <li class="page-item"><a href="#" class="page-link">7</a></li>
                     <li class="page-item next"><a href="#" class="page-link">下一页</a></li>
-                    <li class="page-item last"><a href="#" class="page-link">尾页</a></li>
+                    <li class="page-item last"><a href="#" class="page-link">尾页</a></li> -->
                 </ul>
             </div>
 
@@ -300,22 +301,19 @@
         })
         // 获取文章类别
         //页面一进来就获取
-        
-            $.ajax({
-                type: 'get',
-                url: 'http://localhost:8000/admin/category_search',
-                success: function (backData) {
-                    console.log(backData);
-                    var reshtml = template('tmp_category',backData);
-                    $('#selCategory').html(reshtml);
-                }
-            });
-            
-        // 筛选文章
-        // 给筛选按钮设置点击事件
-        // 如何获取到value值的:根据返回的数据type和state可以为空,代表获取所有内容;所有设置value='';
-        $('#btnSearch').on('click',function(e){
-            e.preventDefault();
+
+        $.ajax({
+            type: 'get',
+            url: 'http://localhost:8000/admin/category_search',
+            success: function (backData) {
+                console.log(backData);
+                var reshtml = template('tmp_category', backData);
+                $('#selCategory').html(reshtml);
+            }
+        });
+
+        // 封装获取文章列表的方法
+        function getArticle(myPage) {
             //获取文章类别和文章状态
             var type = $('#selCategory').val();
             var state = $('#selStatus').val();
@@ -326,23 +324,87 @@
                     key: '',
                     type: type,
                     state: state,
-                    page: 1,
-                    perpage:5,
+                    // 当前页
+                    page: myPage,
+                    perpage: 5,
                 },
-                success: function(backData){
+                success: function (backData) {
                     console.log(backData);
-                    if(backData.code == 200){
-                        var reshtml = template('tmp_article',backData);
+                    if (backData.code == 200) {
+                        var reshtml = template('tmp_article', backData);
                         $('tbody').html(reshtml);
+
+                        // 分页插件动态页码
+                        var totalPages = backData.totalPage; //通过ajax发送请求返回的数据得到真实总页码
+                        if (mytotalPage != totalPages) { //判断如果这次得到的总页码和之前的不一样
+                            mytotalPage = totalPages; // 那就用这次获取的总页码替换之前的总页码
+                            // 当前页
+                            var currentPage = 1;//下面的代码意思是重新渲染出新的页码条
+                            $pagination.twbsPagination('destroy');
+                            $pagination.twbsPagination($.extend({}, defaultOpts, {
+                                // 得到总页数的时候会重新渲染数据,这样就会死循环
+                                // 解决方法给结束条件,只有总页数跟刚才不一样的时候才要重新渲染
+                                startPage: currentPage,
+                                totalPages: totalPages
+                            }));
+                        }
+
                     }
                 }
             })
+        }
+        // 筛选文章
+        // 给筛选按钮设置点击事件
+        // 如何获取到value值的:根据返回的数据type和state可以为空,代表获取所有内容;所有设置value='';
+        $('#btnSearch').on('click', function (e) {
+            e.preventDefault();
+            getArticle(1);
         })
 
+
+        // 分页插件
+        // 这里使用插件不会破话原来的结构吗;
+        // 不会,因为都是ul结构,再将他的类名换成我们的,同样引入jq和bootstrap文件就换成了他的结构
+        // 引入了他的插件可以删除我们自己的,
+        /* $('.pagination').twbsPagination({
+            // 总页数
+            totalPages: 35,
+            // 单页显示页数
+            visiblePages: 7,
+            first: '首页',
+            last: '尾页',
+            next: '下一页',
+            prev: '上一页',
+            onPageClick: function (event, page) {
+                // 调用获取文章列表的方法,点的第几页就传进去
+                getArticle(page);
+            }
+        }); */
+
+        // 声明一个变量,用来定义总页码
+        var mytotalPage = 10;
+        // 动态页码
+        var $pagination = $('.pagination');
+        var defaultOpts = {
+            // 总页数
+            totalPages: mytotalPage,
+            // 单页显示页数
+            visiblePages: 7,
+            first: '首页',
+            last: '尾页',
+            next: '下一页',
+            prev: '上一页',
+            onPageClick: function (event, page) {
+                // 调用获取文章列表的方法,点的第几页就传进去
+                getArticle(page);
+            }
+        };
+        $pagination.twbsPagination(defaultOpts);
 
         // 页面一进来就要获取所有最新数据
         // 所以页面一进来就要调用一次筛选按钮的方法
         // 还要给未分类标签设置value值为空,这样才能获取所有未分类的内容
+        // 要放在点击事件后面
         $('#btnSearch').trigger('click');
     </script>
 
