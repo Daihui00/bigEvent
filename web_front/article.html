@@ -9,6 +9,8 @@
     <link rel="stylesheet" type="text/css" href="css/reset.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script src="./js/template-web.js"></script>
 </head>
 
 <body>
@@ -206,5 +208,31 @@
     </div>
 
 </body>
-
+    <script id="tmp_sb" type="text/html">
+        {{data.author}} 发布于 {{data.date}}&nbsp;&nbsp;&nbsp;分类: {{data.type}}&nbsp;&nbsp;&nbsp;阅读:({{data.read}})&nbsp;&nbsp;&nbsp;评论: ({{data.comment}})
+    </script>
+    <script>
+        $(function(){
+            // 获取url中的id
+            // window.location.search 能够得到搜索栏中?后面的内容
+            // 通过split截取等号后面的id
+            var id = window.location.search.split('=')[1];
+            console.log(id);
+            
+            $.ajax({
+                url: 'http://localhost:8000/admin/search',
+                data: {
+                    id: id,
+                },
+                success: function(backData){
+                    console.log(backData);
+                    // 把返回的文章数据渲染到页面上
+                    $('.article_title').text(backData.data.title);
+                    var reshtml = template('tmp_sb',backData);
+                    $('.article_info').html(reshtml);
+                    $('.article_con').text(backData.data.content);
+                }
+            })
+        })
+    </script>
 </html>

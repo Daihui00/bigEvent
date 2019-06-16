@@ -234,7 +234,8 @@
         {{else}}
         <li>
         {{/if}}
-            <a href="#"><img src="{{v.cover}}" alt=""></a>
+            <!-- 给a标签一个连接,根据id获取对应文章 -->
+            <a href="./article.html?id={{v.id}}"><img src="{{v.cover}}" alt=""></a>
             <p>{{v.title}}</p>
         </li>
     {{/each}}
